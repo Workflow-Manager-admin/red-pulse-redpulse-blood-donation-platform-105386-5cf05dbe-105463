@@ -1,0 +1,4 @@
+{
+    "command": "npm run test",
+    "working_directory": "/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend"
+}
