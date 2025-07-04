@@ -1,12 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { DonorContext } from "./_DonorContext";
 
 // Filterable blood groups
 const bloodGroups = [
   "", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"
 ];
 
+// Spinner
+function SpinnerMini() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        width: 15,
+        height: 15,
+        border: "3px solid var(--color-primary)",
+        borderBottomColor: "transparent",
+        borderRadius: "50%",
+        animation: "spin 1s linear infinite",
+        marginRight: 8,
+      }}
+    />
+  );
+}
+
 // PUBLIC_INTERFACE
 function SearchDonorPage() {
+  const { donorList, isLoading } = useContext(DonorContext);
   const [filters, setFilters] = useState({
     bloodGroup: "",
     city: "",
@@ -14,7 +34,7 @@ function SearchDonorPage() {
     maxAge: ""
   });
   const [results, setResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [searching, setSearching] = useState(false);
 
   // PUBLIC_INTERFACE
   const handleChange = (e) => {
@@ -24,55 +44,30 @@ function SearchDonorPage() {
   // PUBLIC_INTERFACE
   const handleSearch = (e) => {
     e.preventDefault();
-    setIsSearching(true);
-    // Stub donor result (simulate API based on filters)
+    setSearching(true);
+    setResults([]);
     setTimeout(() => {
-      let stubData = [
-        {
-          id: "1",
-          name: "Aarti Sharma",
-          age: 28,
-          bloodGroup: "B+",
-          city: "Delhi",
-          phone: "9001002222",
-        },
-        {
-          id: "2",
-          name: "Rahul Mehta",
-          age: 35,
-          bloodGroup: "O-",
-          city: "Pune",
-          phone: "9891567001",
-        },
-        {
-          id: "3",
-          name: "Priya Joshi",
-          age: 22,
-          bloodGroup: "A+",
-          city: "Mumbai",
-          phone: "9876123456",
-        },
-      ];
-      // Trivial front-end filtering
-      stubData = stubData.filter((d) => {
+      let dataList = donorList;
+      // Filter in-memory
+      dataList = dataList.filter((d) => {
         if (filters.bloodGroup && d.bloodGroup !== filters.bloodGroup) return false;
         if (filters.city && !d.city.toLowerCase().includes(filters.city.toLowerCase())) return false;
         if (filters.minAge && d.age < +filters.minAge) return false;
         if (filters.maxAge && d.age > +filters.maxAge) return false;
         return true;
       });
-      setResults(stubData);
-      setIsSearching(false);
+      setResults(dataList);
+      setSearching(false);
     }, 600);
   };
 
   return (
-    <div className="card" aria-label="Search blood donor">
-      <div className="card-title">Find a Donor</div>
+    <div className="card effect-card" aria-label="Search blood donor">
+      <div className="card-title" tabIndex="0">Find a Donor</div>
       <div className="card-desc">
         Search for potential blood donors using filters.
       </div>
-      <form onSubmit={handleSearch} style={{ marginBottom: "1em" }}>
+      <form onSubmit={handleSearch} style={{ marginBottom: "1em" }} aria-label="Donor search form">
         <label htmlFor="bloodGroup">Blood Group</label>
         <select
           name="bloodGroup"
@@ -95,8 +90,8 @@ function SearchDonorPage() {
           value={filters.city}
           onChange={handleChange}
         />
-        <div style={{display:'flex', gap:'0.9em'}}>
-          <div style={{flex:1}}>
+        <div style={{ display: 'flex', gap: '0.9em' }}>
+          <div style={{ flex: 1 }}>
             <label htmlFor="minAge">Min Age</label>
             <input
               name="minAge"
@@ -109,7 +104,7 @@ function SearchDonorPage() {
               placeholder="18"
             />
           </div>
-          <div style={{flex:1}}>
+          <div style={{ flex: 1 }}>
             <label htmlFor="maxAge">Max Age</label>
             <input
               name="maxAge"
@@ -123,13 +118,23 @@ function SearchDonorPage() {
             />
           </div>
         </div>
-        <button type="submit" aria-label="Search for donor" style={{marginTop:10}}>
-          {isSearching ? "Searching..." : "Search"}
+        <button
+          type="submit"
+          aria-label="Search for donor"
+          style={{
+            marginTop: 10,
+            background: searching ? "var(--color-accent)" : undefined,
+            transition: "background 0.19s"
+          }}
+          className="animated-btn"
+          disabled={searching}
+        >
+          {searching ? (<><SpinnerMini /> Searching...</>) : "Search"}
         </button>
       </form>
       <div>
         {results.length > 0 ? (
-          <table className="donor-table" aria-label="Donor results">
+          <table className="donor-table animation-pop effect-table" aria-label="Donor results">
             <thead>
               <tr>
                 <th>Name</th>
@@ -141,13 +146,23 @@ function SearchDonorPage() {
             </thead>
             <tbody>
               {results.map(d => (
-                <tr key={d.id}>
-                  <td>{d.name}</td>
+                <tr key={d.id} style={{ transition: "background 0.2s" }}>
+                  <td tabIndex="0">{d.name}</td>
                   <td>{d.bloodGroup}</td>
                   <td>{d.city}</td>
                   <td>{d.age}</td>
                   <td>
-                    <a href={`tel:${d.phone}`} style={{color:"var(--color-primary)",fontWeight:600,textDecoration:"none"}}>
+                    <a
+                      href={`tel:${d.phone}`}
+                      style={{
+                        color: "var(--color-primary)",
+                        fontWeight: 600,
+                        textDecoration: "none",
+                        outline: "none"
+                      }}
+                      tabIndex="0"
+                      aria-label={`Call donor at ${d.phone}`}
+                    >
                       {d.phone}
                     </a>
                   </td>
@@ -156,10 +171,15 @@ function SearchDonorPage() {
             </tbody>
           </table>
         ) : (
-          isSearching ? null :
-          <div style={{ color: "var(--color-accent)", marginTop: 10 }}>
-            {results.length === 0 && "No donors found. Try another filter."}
-          </div>
+          searching || isLoading ? (
+            <div style={{ color: "var(--color-primary)" }}>
+              <SpinnerMini /> Loading donors...
+            </div>
+          ) : (
+            <div style={{ color: "var(--color-accent)", marginTop: 10 }}>
+              No donors found. Try another filter.
+            </div>
+          )
         )}
       </div>
     </div>

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { DonorContext } from "./_DonorContext";
 
 // Blood groups for selection
 const bloodGroups = [
@@ -6,8 +7,42 @@ const bloodGroups = [
   "AB+", "AB-", "O+", "O-",
 ];
 
+// Spinner animation (for loading)
+function Spinner() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        width: 18,
+        height: 18,
+        border: "3px solid var(--color-primary)",
+        borderBottomColor: "transparent",
+        borderRadius: "50%",
+        animation: "spin 1s linear infinite",
+        verticalAlign: "middle",
+        marginRight: 8,
+      }}
+      aria-hidden="true"
+      role="status"
+    />
+  );
+}
+
+// Spinner keyframes style
+const styleSheet = document.createElement("style");
+styleSheet.textContent = `
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+`;
+document.head.appendChild(styleSheet);
+
 // PUBLIC_INTERFACE
 function RegisterPage() {
+  // Context for donor memory store and notifications
+  const { addDonor, showNotification, isLoading } = useContext(DonorContext);
+
+  // Local form state
   const [fields, setFields] = useState({
     name: "",
     age: "",
@@ -17,13 +52,13 @@ function RegisterPage() {
     email: "",
   });
   const [errors, setErrors] = useState({});
-  const [resultMsg, setResultMsg] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // PUBLIC_INTERFACE
   const validate = () => {
     let errs = {};
     if (!fields.name.trim()) errs.name = "Name is required";
-    if (!/^\d{2}$|^[1-9]\d{1,2}$/.test(fields.age) || +fields.age < 18 || +fields.age > 70) errs.age = "Valid age (18-70) required";
+    if (!/^\d{2,3}$/.test(fields.age) || +fields.age < 18 || +fields.age > 70) errs.age = "Valid age (18-70) required";
     if (!fields.bloodGroup) errs.bloodGroup = "Blood group required";
     if (!fields.city.trim()) errs.city = "City required";
     if (!/^\d{10}$/.test(fields.phone)) errs.phone = "Valid 10-digit phone";
@@ -35,25 +70,23 @@ function RegisterPage() {
   const handleChange = (e) => {
     setFields({ ...fields, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
-    setResultMsg(null);
   };
 
   // PUBLIC_INTERFACE
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      showNotification("Please correct highlighted errors.", "error");
       return;
     }
-    setErrors({});
-    // Simulated API call stub for registering donor
-    setResultMsg("Submitting...");
+    setSubmitting(true);
+    // Simulate async API call
     setTimeout(() => {
-      setResultMsg({
-        type: "success",
-        text: "Registration successful! Thank you for signing up as a donor."
-      });
+      const donorObj = { ...fields, age: +fields.age, id: Date.now().toString() };
+      addDonor(donorObj);
+      setSubmitting(false);
       setFields({
         name: "",
         age: "",
@@ -62,26 +95,18 @@ function RegisterPage() {
         phone: "",
         email: "",
       });
-    }, 1000);
+      showNotification("Registration successful! Thank you for signing up as a donor.", "success");
+      setErrors({});
+    }, 900);
   };
 
   return (
-    <div className="card" aria-label="Register as blood donor">
-      <div className="card-title">Donor Registration</div>
+    <div className="card effect-card" aria-label="Register as blood donor">
+      <div className="card-title" tabIndex="0">Donor Registration</div>
       <div className="card-desc">
         Fill out the form to become a blood donor. Your details help save lives.
       </div>
-      {resultMsg && (
-        <div
-          className={
-            resultMsg.type === "success" ? "form-success" : "form-error"
-          }
-          role={resultMsg.type === "success" ? "status" : "alert"}
-        >
-          {typeof resultMsg === "string" ? resultMsg : resultMsg.text}
-        </div>
-      )}
-      <form onSubmit={handleSubmit} autoComplete="off">
+      <form onSubmit={handleSubmit} autoComplete="off" aria-live="polite" aria-label="Donor registration form">
         <label htmlFor="name">Full Name</label>
         <input
           id="name"
@@ -91,8 +116,11 @@ function RegisterPage() {
           value={fields.name}
           onChange={handleChange}
           autoComplete="name"
+          aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? "name-err" : undefined}
+          required
         />
-        {errors.name && <div className="form-error">{errors.name}</div>}
+        {errors.name && <div id="name-err" className="form-error">{errors.name}</div>}
 
         <label htmlFor="age">Age</label>
         <input
@@ -101,10 +129,15 @@ function RegisterPage() {
           type="number"
           min={18}
           max={70}
+          inputMode="numeric"
+          pattern="[0-9]*"
           value={fields.age}
           onChange={handleChange}
+          aria-invalid={!!errors.age}
+          aria-describedby={errors.age ? "age-err" : undefined}
+          required
         />
-        {errors.age && <div className="form-error">{errors.age}</div>}
+        {errors.age && <div id="age-err" className="form-error">{errors.age}</div>}
 
         <label htmlFor="bloodGroup">Blood Group</label>
         <select
@@ -112,13 +145,16 @@ function RegisterPage() {
           name="bloodGroup"
           value={fields.bloodGroup}
           onChange={handleChange}
+          aria-invalid={!!errors.bloodGroup}
+          aria-describedby={errors.bloodGroup ? "bg-err" : undefined}
+          required
         >
           <option value="">-- Select --</option>
           {bloodGroups.map((bg) => (
             <option key={bg} value={bg}>{bg}</option>
           ))}
         </select>
-        {errors.bloodGroup && <div className="form-error">{errors.bloodGroup}</div>}
+        {errors.bloodGroup && <div id="bg-err" className="form-error">{errors.bloodGroup}</div>}
 
         <label htmlFor="city">City</label>
         <input
@@ -128,8 +164,11 @@ function RegisterPage() {
           maxLength={32}
           value={fields.city}
           onChange={handleChange}
+          aria-invalid={!!errors.city}
+          aria-describedby={errors.city ? "city-err" : undefined}
+          required
         />
-        {errors.city && <div className="form-error">{errors.city}</div>}
+        {errors.city && <div id="city-err" className="form-error">{errors.city}</div>}
 
         <label htmlFor="phone">Phone Number</label>
         <input
@@ -138,10 +177,14 @@ function RegisterPage() {
           type="tel"
           pattern="[0-9]{10}"
           maxLength={10}
+          inputMode="numeric"
           value={fields.phone}
           onChange={handleChange}
+          aria-invalid={!!errors.phone}
+          aria-describedby={errors.phone ? "phone-err" : undefined}
+          required
         />
-        {errors.phone && <div className="form-error">{errors.phone}</div>}
+        {errors.phone && <div id="phone-err" className="form-error">{errors.phone}</div>}
 
         <label htmlFor="email">Email</label>
         <input
@@ -151,11 +194,22 @@ function RegisterPage() {
           value={fields.email}
           onChange={handleChange}
           autoComplete="email"
+          aria-invalid={!!errors.email}
+          aria-describedby={errors.email ? "email-err" : undefined}
+          required
         />
-        {errors.email && <div className="form-error">{errors.email}</div>}
+        {errors.email && <div id="email-err" className="form-error">{errors.email}</div>}
 
-        <button type="submit" aria-label="Register now">
-          Register
+        <button
+          type="submit"
+          aria-label="Register now"
+          className="animated-btn"
+          disabled={submitting || isLoading}
+          style={{ opacity: submitting || isLoading ? 0.7 : 1, pointerEvents: submitting ? "none" : undefined}}
+        >
+          {(submitting || isLoading) ? <>
+            <Spinner /> Submitting...
+          </> : "Register"}
         </button>
       </form>
     </div>
