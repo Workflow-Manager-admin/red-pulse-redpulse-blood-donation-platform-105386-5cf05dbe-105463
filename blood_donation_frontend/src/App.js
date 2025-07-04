@@ -43,11 +43,23 @@ function App() {
               </li>
             </ul>
             <button
-              className="theme-toggle"
+              className="theme-toggle theme-toggle--small"
               onClick={toggleTheme}
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              type="button"
             >
-              {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+              <span
+                aria-hidden="true"
+                style={{
+                  display: "inline-block",
+                  fontSize: "1.1em",
+                  lineHeight: 1,
+                  verticalAlign: "middle"
+                }}
+              >
+                {theme === "dark" ? "☀️" : "🌙"}
+              </span>
             </button>
           </nav>
           <main className="content">

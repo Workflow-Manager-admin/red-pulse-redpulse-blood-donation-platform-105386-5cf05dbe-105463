@@ -6,9 +6,9 @@ Attempting to bind to HOST environment variable: 0.0.0.0
 If this was unintentional, check that you haven't mistakenly set it in your shell.
 Learn more here: https://cra.link/advanced-config
 
-(node:2759) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:4240) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
 (Use `node --trace-deprecation ...` to show where the warning was created)
-(node:2759) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:4240) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
 Starting the development server...
 
 Compiled successfully!
@@ -23,56 +23,8 @@ To create a production build, use npm run build.
 
 webpack compiled successfully
 Compiling...
-Failed to compile.
-
-Module not found: Error: Can't resolve './_DonorContext' in '/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend/src/components'
-ERROR in ./src/components/RegisterPage.js 6:0-47
-Module not found: Error: Can't resolve './_DonorContext' in '/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend/src/components'
-
-webpack compiled with 1 error
-Compiling...
-Failed to compile.
-
-Module not found: Error: Can't resolve './_DonorContext' in '/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend/src/components'
-ERROR in ./src/components/RegisterPage.js 6:0-47
-Module not found: Error: Can't resolve './_DonorContext' in '/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend/src/components'
-
-ERROR in ./src/components/SearchDonorPage.js 6:0-47
-Module not found: Error: Can't resolve './_DonorContext' in '/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend/src/components'
-
-webpack compiled with 2 errors
-Compiling...
-Failed to compile.
-
-Module not found: Error: Can't resolve './_DonorContext' in '/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend/src/components'
-ERROR in ./src/components/ContactPage.js 6:0-47
-Module not found: Error: Can't resolve './_DonorContext' in '/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend/src/components'
-
-ERROR in ./src/components/RegisterPage.js 6:0-47
-Module not found: Error: Can't resolve './_DonorContext' in '/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend/src/components'
-
-ERROR in ./src/components/SearchDonorPage.js 6:0-47
-Module not found: Error: Can't resolve './_DonorContext' in '/home/kavia/workspace/code-generation/redpulse-blood-donation-platform-105386-5cf05dbe/blood_donation_frontend/src/components'
-
-webpack compiled with 3 errors
-Compiling...
 Compiled successfully!
 webpack compiled successfully
-Compiling...
-Compiled with warnings.
-
-[eslint] 
-src/App.js
-  Line 6:10:  'DonorProvider' is defined but never used  no-unused-vars
-
-Search for the keywords to learn more about each warning.
-To ignore, add // eslint-disable-next-line to the line before.
-
-WARNING in [eslint] 
-src/App.js
-  Line 6:10:  'DonorProvider' is defined but never used  no-unused-vars
-
-webpack compiled with 1 warning
 Compiling...
 Compiled successfully!
 webpack compiled successfully

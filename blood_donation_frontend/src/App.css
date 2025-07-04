@@ -110,8 +110,42 @@ body {
   transition: background 0.23s, transform 0.16s;
   margin-left: 1.5em;
   outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.theme-toggle:hover {
+
+/* Minimal/small version for top navbar */
+.theme-toggle--small {
+  padding: 4px 9px !important;
+  min-width: unset;
+  min-height: unset;
+  border-radius: 7px;
+  font-size: 1em;
+  margin-left: 0.7em !important;
+  margin-right: 0.1em;
+  line-height: 1;
+  box-shadow: none;
+}
+
+.theme-toggle--small span {
+  font-size: 1.14em;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.theme-toggle:focus,
+.theme-toggle--small:focus {
+  outline: 2.5px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2.5px rgba(211,47,47,0.18);
+}
+
+.theme-toggle:hover,
+.theme-toggle--small:hover {
   background: var(--button-bg-hover);
   transform: translateY(-2px);
   opacity: 0.96;
