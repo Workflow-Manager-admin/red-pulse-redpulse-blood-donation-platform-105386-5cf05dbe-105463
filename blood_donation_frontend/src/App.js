@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from "react-router-dom";
 import RegisterPage from "./components/RegisterPage";
 import SearchDonorPage from "./components/SearchDonorPage";
 import ContactPage from "./components/ContactPage";
@@ -9,7 +9,8 @@ import "./App.css";
 // PUBLIC_INTERFACE
 function App() {
   const [theme, setTheme] = useState("dark");
-  // Color palette
+  const navRef = useRef(null);
+
   const red = "#d32f2f";
   const accent = "#b71c1c";
 
@@ -22,51 +23,214 @@ function App() {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  // Focus management: skip to main button
+  function handleSkipToMain(e) {
+    e.preventDefault();
+    const main = document.querySelector(".content");
+    main && main.focus();
+  }
+
+  // Custom SVG logo: premium minimal icon
+  function LogoIcon({ style = {} }) {
+    return (
+      <svg
+        width="42"
+        height="42"
+        viewBox="0 0 40 40"
+        aria-hidden="true"
+        focusable="false"
+        style={{
+          display: "block",
+          filter: "drop-shadow(0 4px 8px #b71c1c3c)",
+          ...style
+        }}
+        fill="none"
+      >
+        <defs>
+          <radialGradient id="drop-radial" cx="50%" cy="50%" r="60%" fx="38%" fy="38%">
+            <stop offset="0%" stopColor="#e57373" stopOpacity="0.90"/>
+            <stop offset="80%" stopColor={red} stopOpacity="0.94"/>
+            <stop offset="100%" stopColor={accent} stopOpacity="1"/>
+          </radialGradient>
+        </defs>
+        <path
+          d="M20.5 4C14.5 15.2 6 19.6 6 27.23C6 33.13 12.08 37 20 37C27.92 37 34 33.13 34 27.23C34 19.6 25.5 15.2 20.5 4Z"
+          fill="url(#drop-radial)"
+          stroke="#920808"
+          strokeWidth="0.18"
+          style={{ filter: "drop-shadow(0 2px 7px #80030333)" }}
+        />
+        <circle
+          cx="20"
+          cy="26"
+          r="5.8"
+          fill="#fff"
+          fillOpacity="0.11"
+        />
+      </svg>
+    );
+  }
+
+  // Custom crisp theme toggle icon
+  function ThemeIcon({ mode }) {
+    if (mode === "dark") {
+      // Sun
+      return (
+        <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={red} strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="5.2" fill="#fff" fillOpacity="0.86" />
+          <g stroke={red} opacity="0.82">
+            <line x1="12" y1="1.5" x2="12" y2="4"/>
+            <line x1="12" y1="20" x2="12" y2="22.5"/>
+            <line x1="4" y1="12" x2="1.7" y2="12"/>
+            <line x1="22.3" y1="12" x2="20" y2="12"/>
+            <line x1="5.5" y1="5.5" x2="3.8" y2="3.8"/>
+            <line x1="20.2" y1="20.2" x2="18.5" y2="18.5"/>
+            <line x1="5.5" y1="18.5" x2="3.8" y2="20.2"/>
+            <line x1="18.5" y1="5.5" x2="20.2" y2="3.8"/>
+          </g>
+        </svg>
+      );
+    }
+    // Moon
+    return (
+      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M21 15.13A9 9 0 0 1 12.13 3 7 7 0 1 0 21 15.13z"
+          stroke={accent}
+          strokeWidth="2.1"
+          fill="#faf9f2"
+          fillOpacity="0.89"
+        />
+      </svg>
+    );
+  }
+
   return (
     <DonorProvider>
       <Router>
         <div className="main-bg">
-          <nav className="navbar" role="navigation" style={{ boxShadow: "0 0.5px 0 #fff1, 0 8px 32px 0 rgba(0,0,0,0.08)" }}>
-            <div className="navbar-logo" tabIndex="0" aria-label="RedPulse+ home" style={{ color: red, fontWeight: 900, letterSpacing: "1.5px", userSelect: "none", fontFamily: 'SF Pro Display, Inter, Avenir Next, Segoe UI, sans-serif' }}>
-              <span role="img" aria-label="blood drop" style={{ marginRight: 7, fontSize: "1.26em", filter: "drop-shadow(0 2px 2px #b71c1c30)" }}>🩸</span>
-              RedPulse+
-            </div>
-            <ul className="navbar-links" aria-label="Page Navigation">
-              <li>
-                <NavLink to="/register" className={({ isActive }) => isActive ? "active-link" : ""} tabIndex={0}>Register</NavLink>
+          {/* Accessibility: skip to main link */}
+          <a
+            href="#main-content"
+            className="skip-link"
+            style={{
+              position: "absolute",
+              left: -9999,
+              top: 12,
+              background: "#fff",
+              color: red,
+              padding: "0.9em 2em",
+              borderRadius: "16px",
+              fontWeight: 700,
+              fontFamily: "inherit",
+              fontSize: "1.12em",
+              outline: 0,
+              zIndex: 99999,
+              transition: "left 0.28s"
+            }}
+            onFocus={e => (e.currentTarget.style.left = "18px")}
+            onBlur={e => (e.currentTarget.style.left = "-9999px")}
+            onClick={handleSkipToMain}
+          >
+            Skip to main content
+          </a>
+          <nav
+            className="navbar"
+            aria-label="Main navigation"
+            ref={navRef}
+            role="navigation"
+            tabIndex="-1"
+            style={{
+              WebkitBackdropFilter: "blur(18px)",
+              backdropFilter: "blur(18px)",
+              background: "rgba(17,17,18, 0.82)",
+              boxShadow: "0 10px 42px 0 rgba(179,21,19,0.16), 0 0.5px 0 #fff1"
+            }}
+          >
+            <NavLink
+              to="/register"
+              className="navbar-logo-link"
+              style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
+              tabIndex={0}
+              aria-label="Go to home (Registration)"
+            >
+              <span
+                className="navbar-logo"
+                tabIndex={-1}
+                aria-label="RedPulse+ Home"
+                style={{ fontWeight: 800, fontSize: "2.0rem", gap: "0.75em", display: "flex", alignItems: "center", marginRight: 0 }}
+              >
+                <LogoIcon style={{marginRight: "0.23em"}} />
+                <span className="navbar-logo-text" style={{
+                  fontWeight: 900, fontFamily: "var(--font-brand)",
+                  letterSpacing: "0.02em",
+                  color: "var(--color-primary)",
+                  fontSize: "1.34em",
+                  textShadow: "0 3px 18px #80000028"
+                }}>
+                  <span style={{ fontFamily: "inherit", fontWeight: 900 }}>RedPulse</span>
+                  <span style={{
+                    display: "inline-block",
+                    color: accent,
+                    fontWeight: 800,
+                    fontSize: "0.93em",
+                    marginLeft: "1.5px"
+                  }}>+</span>
+                </span>
+              </span>
+            </NavLink>
+            <ul className="navbar-links" aria-label="Site sections" role="menubar">
+              <li role="none">
+                <NavLink
+                  to="/register"
+                  role="menuitem"
+                  className={({ isActive }) => isActive ? "active-link" : ""}
+                  tabIndex={0}
+                  aria-current={({ isActive }) => isActive ? "page" : undefined}
+                >Register</NavLink>
               </li>
-              <li>
-                <NavLink to="/search" className={({ isActive }) => isActive ? "active-link" : ""} tabIndex={0}>Search Donor</NavLink>
+              <li role="none">
+                <NavLink
+                  to="/search"
+                  role="menuitem"
+                  className={({ isActive }) => isActive ? "active-link" : ""}
+                  tabIndex={0}
+                  aria-current={({ isActive }) => isActive ? "page" : undefined}
+                >Search Donor</NavLink>
               </li>
-              <li>
-                <NavLink to="/contact" className={({ isActive }) => isActive ? "active-link" : ""} tabIndex={0}>Contact Us</NavLink>
+              <li role="none">
+                <NavLink
+                  to="/contact"
+                  role="menuitem"
+                  className={({ isActive }) => isActive ? "active-link" : ""}
+                  tabIndex={0}
+                  aria-current={({ isActive }) => isActive ? "page" : undefined}
+                >Contact Us</NavLink>
               </li>
             </ul>
             <button
-              className="theme-toggle theme-toggle--small"
+              className="theme-toggle theme-toggle--premium"
               onClick={toggleTheme}
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
               title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
               type="button"
               tabIndex={0}
+              aria-pressed={theme === "light"}
               style={{
                 display: "flex",
                 alignItems: "center",
-                minWidth: 52,
-                boxShadow: "0 3px 24px 0 rgba(211,47,47,0.04)"
+                minWidth: 54,
+                minHeight: 46,
+                justifyContent: "center",
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.03)",
+                boxShadow: "0 2px 12px 0 rgba(211,47,47,0.08), 0 1.5px 5px #b71c1c14",
+                marginLeft: "2.8em",
+                marginRight: "1.0em",
+                transition: "background 0.21s"
               }}
             >
-              <span
-                aria-hidden="true"
-                style={{
-                  fontSize: "1.36em",
-                  lineHeight: 1,
-                  verticalAlign: "middle",
-                  transition: "color 0.2s"
-                }}
-              >
-                {theme === "dark" ? "☀️" : "🌙"}
-              </span>
+              <ThemeIcon mode={theme} />
               <span style={{
                 position: "absolute",
                 left: "-9999px",
@@ -77,7 +241,7 @@ function App() {
               </span>
             </button>
           </nav>
-          <main className="content">
+          <main className="content" id="main-content" tabIndex="-1">
             <Routes>
               <Route path="/" element={<RegisterPage />} />
               <Route path="/register" element={<RegisterPage />} />
