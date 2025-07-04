@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from "react-router-dom";
+import React, { useRef } from "react";
+import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import RegisterPage from "./components/RegisterPage";
 import SearchDonorPage from "./components/SearchDonorPage";
 import ContactPage from "./components/ContactPage";
@@ -8,20 +8,11 @@ import "./App.css";
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState("dark");
   const navRef = useRef(null);
 
+  // Static brand colors
   const red = "#d32f2f";
   const accent = "#b71c1c";
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
 
   // Focus management: skip to main button
   function handleSkipToMain(e) {
@@ -66,40 +57,6 @@ function App() {
           r="5.8"
           fill="#fff"
           fillOpacity="0.11"
-        />
-      </svg>
-    );
-  }
-
-  // Custom crisp theme toggle icon
-  function ThemeIcon({ mode }) {
-    if (mode === "dark") {
-      // Sun
-      return (
-        <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={red} strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="5.2" fill="#fff" fillOpacity="0.86" />
-          <g stroke={red} opacity="0.82">
-            <line x1="12" y1="1.5" x2="12" y2="4"/>
-            <line x1="12" y1="20" x2="12" y2="22.5"/>
-            <line x1="4" y1="12" x2="1.7" y2="12"/>
-            <line x1="22.3" y1="12" x2="20" y2="12"/>
-            <line x1="5.5" y1="5.5" x2="3.8" y2="3.8"/>
-            <line x1="20.2" y1="20.2" x2="18.5" y2="18.5"/>
-            <line x1="5.5" y1="18.5" x2="3.8" y2="20.2"/>
-            <line x1="18.5" y1="5.5" x2="20.2" y2="3.8"/>
-          </g>
-        </svg>
-      );
-    }
-    // Moon
-    return (
-      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M21 15.13A9 9 0 0 1 12.13 3 7 7 0 1 0 21 15.13z"
-          stroke={accent}
-          strokeWidth="2.1"
-          fill="#faf9f2"
-          fillOpacity="0.89"
         />
       </svg>
     );
@@ -208,38 +165,6 @@ function App() {
                 >Contact Us</NavLink>
               </li>
             </ul>
-            <button
-              className="theme-toggle theme-toggle--premium"
-              onClick={toggleTheme}
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-              type="button"
-              tabIndex={0}
-              aria-pressed={theme === "light"}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                minWidth: 54,
-                minHeight: 46,
-                justifyContent: "center",
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.03)",
-                boxShadow: "0 2px 12px 0 rgba(211,47,47,0.08), 0 1.5px 5px #b71c1c14",
-                marginLeft: "2.8em",
-                marginRight: "1.0em",
-                transition: "background 0.21s"
-              }}
-            >
-              <ThemeIcon mode={theme} />
-              <span style={{
-                position: "absolute",
-                left: "-9999px",
-                opacity: 0,
-                pointerEvents: "none"
-              }}>
-                {theme === "dark" ? "Light theme" : "Dark theme"}
-              </span>
-            </button>
           </nav>
           <main className="content" id="main-content" tabIndex="-1">
             <Routes>
